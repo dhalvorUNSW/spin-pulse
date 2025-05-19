@@ -1,5 +1,5 @@
 #%%
-from qubits import SpinQubit
+from simulator.qubits import SpinQubit
 import pulses
 from simulator_test import evolveState, plotBlochSphere, plotProjection
 from noise import BroadbandNoise
