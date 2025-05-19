@@ -2,8 +2,6 @@ import numpy as np
 import scipy.constants as c
 import matplotlib.pyplot as plt
 from scipy.linalg import expm
-from sigpy.mri.rf import slr
-
 ### Set constants used below
 
 hbar = c.hbar
@@ -40,45 +38,6 @@ def generateBURPPulse(
         plt.title(f'BURP {pulse_type} pulse')
 
     return b1
-
-
-def generateSLRPulse(
-    tau,
-    sr,
-    bw,
-    pulse_type,
-    filter_type='min',
-    two_axis_pulse=False,
-    plot_output=True
-):
-    g = 2
-    gamma = g*muB/hbar
-    n = int(tau*sr) 
-    dt = tau/n
-    TBW = tau*bw
-    scale = 1/(gamma*dt)*2
-
-    if pulse_type == 'pi':
-        ptype = 'inv'
-    elif pulse_type == 'pi/2':
-        ptype = 'ex'
-    else:
-        print('Pulse type not possible by SLR. Set either pi or pi/2')
-
-    rf = scale * slr.dzrf(n, TBW, ptype=ptype, ftype=filter_type, d1=0.00001, d2=0.00001, cancel_alpha_phs= not two_axis_pulse)
-    w1 = np.real(rf)
-    w1 = gamma*w1/2
-
-    if plot_output == True:
-        times = np.linspace(0, tau, n)
-        C5 = '#360568' # Purple
-        fig = plt.figure(figsize=(7, 4))
-        plt.plot(times, w1, color=C5)
-        plt.xlabel('time (s)')
-        plt.ylabel('w1 amplitude (Hz)')
-        plt.title(f'SLR {pulse_type} pulse')
-
-    return w1
 
 def coeffs_to_BURP(
     A_coeffs,
