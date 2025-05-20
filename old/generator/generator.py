@@ -52,29 +52,3 @@ def coeffs_to_BURP(
         w1 += B_coeffs[i]*np.sin((i+1)*w*t)
     
     return w1 * w
-
-def get_paper_BURP_coeffs(
-    pulse_type,
-    version,
-    n_max=None
-):
-    if pulse_type == 'pi' and version == 1:
-        A_coeffs = np.array([0.5, 0.74, -0.2, -0.92, 0.12, -0.03, -0.04, 0.01, -0.02, -0.01])
-        B_coeffs = np.array([-1.52, 1.00, -0.31, -0.03, 0.08, -0.05, 0.00, 0.01, -0.01])
-        
-    elif pulse_type == 'pi' and version == 2:
-        A_coeffs = np.array([0.5, 0.79, 0.00, -1.23, -0.19, 0.1, 0.12, 0.04, -0.03, -0.03, -0.01, 0.00])
-        B_coeffs = np.array([-0.71, -1.39, 0.31, 0.47, 0.22, 0.03, -0.05, -0.04, 0.00, 0.02, 0.01])
-
-    elif pulse_type == 'pi/2' and version == 1:
-        A_coeffs = np.array([0.23, 0.89, -1.02, -0.25, 0.14, 0.03, 0.04, -0.03, 0.00])
-        B_coeffs = np.array([-0.4, -1.42, 0.74, 0.06, 0.03, -0.04, -0.02, 0.01])
-
-    elif pulse_type == 'pi/2' and version == 2:
-        A_coeffs = np.array([0.26, 0.91, 0.45, -1.31, -0.12, 0.03, 0.01, 0.06, 0.01, -0.02, -0.01])
-        B_coeffs = np.array([-0.12, -1.79, 0.01, 0.41, 0.08, 0.07, 0.01, -0.04, -0.01, 0.00])
-
-    else:
-        print('Error: invalid pulse type.')
-
-    return A_coeffs, B_coeffs
