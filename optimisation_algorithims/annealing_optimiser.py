@@ -28,7 +28,7 @@ class SimulatedAnnealing:
         # Set default library path if not provided
         if library_path is None:
             library_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
-                                       f"libannealing{lib_ext}")
+                                       f"annealing_lib{lib_ext}")
         
         # Load the library
         self.lib = ctypes.CDLL(library_path)
@@ -46,8 +46,8 @@ class SimulatedAnnealing:
             ctypes.c_double,                          # w1_max
             ctypes.c_double,                          # lambda
             ctypes.c_double,                          # tau
-            ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),  # init_coeffs
-            ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),  # best_coeffs (output)
+            ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),  # best_sin_coeffs (output)
+            ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),  # best_cos_coeffs (output)
             ctypes.POINTER(ctypes.c_double)           # best_error (output)
         ]
         self.lib.run_annealing.restype = None  # This function doesn't return a value
@@ -58,13 +58,12 @@ class SimulatedAnnealing:
                       tau=100.0e-9,
                       band_dig=6, 
                       amp_dig=5,
-                      amp_max=0.05,
                       det_max=0.1/100.0e-9,
+                      amp_max=0.05,
                       init_temp=5.0,
                       cooling_rate=0.95,
                       w1_max=2.0 * np.pi * 80.0e6,
-                      lambda_val=1.0e3,
-                      init_coeffs=None):
+                      lambda_val=1.0e3):
         """
         Run the simulated annealing algorithm.
         
@@ -98,28 +97,13 @@ class SimulatedAnnealing:
         Returns:
         --------
         tuple
-            (best_coeffs, best_error) where:
+            (best_sin_coeffs, best_cos_coeffs, best_error) where:
             - best_coeffs: numpy.ndarray of optimized Fourier coefficients
             - best_error: float with the best error value achieved
         """
-        # Set default initial coefficients if not provided
-        if init_coeffs is None:
-            init_coeffs = np.zeros(n_max, dtype=np.float64)
-            init_coeffs[0] = 0.25
-        elif len(init_coeffs) < n_max:
-            # Pad with zeros if necessary
-            padded_coeffs = np.zeros(n_max, dtype=np.float64)
-            padded_coeffs[:len(init_coeffs)] = init_coeffs
-            init_coeffs = padded_coeffs
-        elif len(init_coeffs) > n_max:
-            # Truncate if necessary
-            init_coeffs = init_coeffs[:n_max]
-            
-        # Ensure array is contiguous and correct type
-        init_coeffs = np.ascontiguousarray(init_coeffs, dtype=np.float64)
-        
         # Create output array for best coefficients
-        best_coeffs = np.zeros(n_max, dtype=np.float64)
+        best_sin_coeffs = np.zeros(n_max, dtype=np.float64)
+        best_cos_coeffs = np.zeros(n_max + 1, dtype=np.float64)
         
         # Create a C double pointer for the best error output
         best_error_c = ctypes.c_double(0.0)
@@ -128,10 +112,10 @@ class SimulatedAnnealing:
         self.lib.run_annealing(
             pulse_length, n_max, band_dig, amp_dig, amp_max, det_max, 
             init_temp, cooling_rate, w1_max, lambda_val, tau, 
-            init_coeffs, best_coeffs, ctypes.byref(best_error_c)
+            best_sin_coeffs, best_cos_coeffs, ctypes.byref(best_error_c)
         )
         
         # Convert C double to Python float
         best_error = best_error_c.value
         
-        return best_coeffs, best_error
+        return best_sin_coeffs, best_cos_coeffs, best_error

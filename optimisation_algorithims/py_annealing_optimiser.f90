@@ -47,7 +47,7 @@ contains
 
         ! Initialize annealing parameters
         T = init_temp
-        up_attempt_max = (2*n_max + 1) * 500
+        up_attempt_max = (2*n_max + 1) * 1000
         up_success_max = up_attempt_max / 10
         up_attempt = 0
         up_success = 0

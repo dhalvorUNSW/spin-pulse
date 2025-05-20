@@ -10,7 +10,8 @@ gfortran -c -fPIC -O3 sub/coeffs_to_pulse.f90 -o build/coeffs_to_pulse.o
 gfortran -c -fPIC -O3 sub/update_pulse.f90 -o build/update_pulse.o
 gfortran -c -fPIC -O3 sub/sim_functions.f90 -o build/sim_functions.o
 gfortran -c -fPIC -O3 sub/cost_functions.f90 -o build/cost_functions.o
-gfortran -c -fPIC -O3 py_annealing_optimiser.f90 -o build/py_annealing.o
+# gfortran -c -fPIC -O3 py_annealing_optimiser.f90 -o build/py_annealing.o
+gfortran -c -fPIC -O3 annealing_algorithm_backend.f90 -o build/annealing_algorithm_backend.o
 
 # Create shared library
 gfortran -shared -o libannealing.so build/*.o
