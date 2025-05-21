@@ -39,8 +39,8 @@ class SimulatedAnnealing:
             ctypes.c_int,                             # n_max
             ctypes.c_int,                             # band_dig
             ctypes.c_int,                             # amp_dig
-            ctypes.c_double,                          # amp_max
             ctypes.c_double,                          # det_max 
+            ctypes.c_double,                          # amp_max
             ctypes.c_double,                          # init_temp
             ctypes.c_double,                          # cooling_rate
             ctypes.c_double,                          # w1_max
@@ -53,17 +53,17 @@ class SimulatedAnnealing:
         self.lib.run_annealing.restype = None  # This function doesn't return a value
 
     def run_annealing(self, 
-                      n_max=20,
-                      pulse_length=100,
-                      tau=100.0e-9,
-                      band_dig=6, 
-                      amp_dig=5,
-                      det_max=0.1/100.0e-9,
-                      amp_max=0.05,
-                      init_temp=5.0,
-                      cooling_rate=0.95,
-                      w1_max=2.0 * np.pi * 80.0e6,
-                      lambda_val=1.0e3):
+                      pulse_length,
+                      n_max,
+                      band_dig, 
+                      amp_dig,
+                      amp_max,
+                      det_max,
+                      init_temp,
+                      cooling_rate,
+                      w1_max,
+                      lambda_val,
+                      tau, save_pulse=False):
         """
         Run the simulated annealing algorithm.
         
@@ -117,5 +117,18 @@ class SimulatedAnnealing:
         
         # Convert C double to Python float
         best_error = best_error_c.value
+
+
         
         return best_sin_coeffs, best_cos_coeffs, best_error
+    
+    def coeffs_to_pulse(A_coeffs, B_coeffs, t, tau):  
+
+        w = 2*np.pi/tau
+        w1 = A_coeffs[0]
+    
+        for i in range(len(B_coeffs)):
+            w1 += A_coeffs[i+1]*np.cos((i+1)*w*t)
+            w1 += B_coeffs[i]*np.sin((i+1)*w*t)
+    
+        return w1 * w

@@ -13,8 +13,8 @@ module annealing_algorithm_backend
 contains
 
     ! Main simulated annealing function with C binding for Python interoperability
-    subroutine run_annealing(Np, tau, n_max, band_dig, amp_dig, amp_max, det_max, &
-                            init_temp, cooling_rate, w1_max, lambda, best_sin_coeffs, best_cos_coeffs, best_error) &
+    subroutine run_annealing(Np, n_max, band_dig, amp_dig, amp_max, det_max, &
+                            init_temp, cooling_rate, w1_max, lambda, tau, best_sin_coeffs, best_cos_coeffs, best_error) &
                             bind(C, name="run_annealing")
 
     ! Input parameters

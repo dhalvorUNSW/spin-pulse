@@ -3,6 +3,7 @@ import qutip as q
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
+from tqdm import tqdm
 
 C1 = '#34A300' # Green
 C2 = '#DD404B' # Red
@@ -21,14 +22,6 @@ def evolveState(qubit, pulse_sequence, det_noise):
     w1y = np.zeros(pulse_sequence.length)
     det = pulse_sequence.det_offset*np.ones(len(w1x)) + det_noise
     dt = pulse_sequence.dt
-
-    # if interpolate == True:
-    #     sr = 50e9
-    #     NUM_STEPS = int(sr*pulse_sequence.time)
-    #     times_interp = np.linspace(1/sr, pulse_sequence.time, NUM_STEPS)
-    #     times = np.linspace(pulse_sequence.dt, pulse_sequence.time, pulse_sequence.length)
-    #     w1x = np.interp(times_interp, times, w1x)
-    #     w1y = np.interp(times_interp, times, w1y)
 
     states = np.zeros((len(w1x), 2, 1), dtype=complex)
 
@@ -99,3 +92,37 @@ def colorGradient(c1,c2,r=0): #fade (linear interpolate) from color c1 (at mix=0
     c1 = np.array(mpl.colors.to_rgb(c1))
     c2 = np.array(mpl.colors.to_rgb(c2))
     return mpl.colors.to_hex((1-r)*c1 + r*c2)
+
+
+## IN DEVELOPMENT
+
+def digitalRabiError(pulse, N_shots, det_noise_width, amp_noise_width):
+    # Currently just one point
+    # Generate noise
+    det_noise_array = np.random.normal(loc=0, scale=det_noise_width, size=[N_shots])
+    amp_noise_array = np.random.normal(loc=0, scale=amp_noise_width, size=[N_shots])
+
+    # Simulate digital rabi for n_shots with noise
+    proj = 0
+    for n in tqdm(range(N_shots)):
+        # Initialise qubit
+        q1 = qubits.SpinQubit()
+
+        rabi_sequence = pulses.PulseSequence(det_offset=0e6)
+        # For now, try optimise projection after 8th pulse
+        for _ in range(8):
+            rabi_sequence.X2_custom(pulse)
+        
+        rabi_sequence.det_offset = det_noise_array[n]
+        rabi_sequence.amp_offset = amp_noise_array[n]
+
+        # Simulate pulse and get projection
+        states = evolveState(q1, rabi_sequence)
+        proj += plotProjection(states[-1], rabi_sequence, plot_output=False)[0][0]
+
+    proj_avg = proj/N_shots
+
+    # Evaluate cost function
+    E = -proj_avg
+
+    return E

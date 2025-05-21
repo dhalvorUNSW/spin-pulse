@@ -10,36 +10,24 @@ band_dig = 8
 amp_dig = 1
 amp_max = 1
 det_max = 0.5/tau
-init_temp = 10
+init_temp = 100
 w1_max = 2*np.pi*40e6
+lambda_val = 1000
 
-# Define parameters to be changed
-# cooling_rate_array = np.array([0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99])
-cooling_rate_array = np.array([0.5, 0.6, 0.7, 0.8, 0.9])
-results_array = np.zeros([1, len(cooling_rate_array)])
-
-for c in range(len(cooling_rate_array)):
-    for i in range(8):
-        cooling_rate = cooling_rate_array[c]
-        opt = SimulatedAnnealing()
-        coeffs, error =  opt.run_annealing(
-            n_max=n_max,
-            pulse_length=pulse_length,
-            tau=tau,
-            band_dig=band_dig,
-            amp_dig=amp_dig,
-            amp_max=amp_max,
-            det_max=det_max,
-            init_temp=init_temp,
-            cooling_rate=cooling_rate,
-            w1_max=w1_max
-        )
-        results_array[i, c] = error
-
-plt.plot(cooling_rate_array, results_array[0, :], '.--')
-plt.plot(cooling_rate_array, results_array[1, :], '.--')
-plt.plot(cooling_rate_array, results_array[2, :], '.--')
-plt.plot(cooling_rate_array, results_array[3, :], '.--')
-plt.plot(cooling_rate_array, results_array[4, :], '.--')
-plt.show()
+# Test
+cooling_rate = 0.5
+opt = SimulatedAnnealing()
+sin_coeffs, cos_coeffs, error =  opt.run_annealing(
+    n_max=n_max,
+    pulse_length=pulse_length,
+    band_dig=band_dig,
+    amp_dig=amp_dig,
+    amp_max=amp_max,
+    det_max=det_max,
+    init_temp=init_temp,
+    cooling_rate=cooling_rate,
+    w1_max=w1_max,
+    lambda_val=lambda_val,
+    tau=tau,
+)
 
