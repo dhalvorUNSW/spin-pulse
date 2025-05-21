@@ -3,6 +3,8 @@ import ctypes
 from numpy.ctypeslib import ndpointer
 import os
 import platform
+import pulses
+import json
 
 class SimulatedAnnealing:
     """Python wrapper for Fortran simulated annealing library"""
@@ -118,17 +120,34 @@ class SimulatedAnnealing:
         # Convert C double to Python float
         best_error = best_error_c.value
 
+        # Save pulse as instance of ShapedPulse class
+        times = np.linspace(0, tau, pulse_length)
+        amps = self.coeffs_to_pulse(best_sin_coeffs, best_cos_coeffs, times, tau)
+        shaped_pulse = pulses.ShapedPulse(amps, tau, det_max, amp_max, best_error)
 
+        # Save pulse details to JSON
+        if save_pulse == True:
+            # Directory and filename
+            directory = "PulseLibrary"
+            filename = "custom_pulse.json"
+            filepath = os.path.join(directory, filename)
+
+            # Create the directory if it doesn't exist
+            os.makedirs(directory, exist_ok=True)
+
+            # Write dictionary to a JSON file inside the directory
+            with open(filepath, "w") as json_file:
+                json.dump(shaped_pulse.encode_pulse(), json_file, indent=4)
         
-        return best_sin_coeffs, best_cos_coeffs, best_error
+        return shaped_pulse
     
-    def coeffs_to_pulse(A_coeffs, B_coeffs, t, tau):  
+    def coeffs_to_pulse(self, sin_coeffs, cos_coeffs, t, tau):  
 
         w = 2*np.pi/tau
-        w1 = A_coeffs[0]
+        w1 = cos_coeffs[0]
     
-        for i in range(len(B_coeffs)):
-            w1 += A_coeffs[i+1]*np.cos((i+1)*w*t)
-            w1 += B_coeffs[i]*np.sin((i+1)*w*t)
+        for i in range(len(sin_coeffs)):
+            w1 += cos_coeffs[i+1]*np.cos((i+1)*w*t)
+            w1 += sin_coeffs[i]*np.sin((i+1)*w*t)
     
         return w1 * w

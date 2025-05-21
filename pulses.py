@@ -1,5 +1,42 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+import json
+
+class ShapedPulse:
+
+    def __init__(self, amps, tau, pm_det, pm_amp, best_error):
+
+        self.amps = amps # Array of amplitudes in pulse
+        self.tau = tau # Length of pulse in seconds
+        self.pulse_length = len(amps) # Number of points in pulse
+        self.pm_det = pm_det # Width of frequency detuning pulse is robust to
+        self.pm_amp = pm_amp # Width of amplitude change pulse is robust to
+        self.amp_max = max(amps) # maximum amplitude of pulse
+        self.best_error = best_error # Best error calculated by cost function
+
+    # Encoding function for saving pulse
+    def encode_pulse(self):
+        return {
+                'amps' : list(self.amps),
+                'tau' : self.tau,
+                'pulse_length' : self.pulse_length,
+                'pm_det' : self.pm_det,
+                'pm_amp' : self.pm_amp,
+                'amp_max' : self.amp_max,
+                'best_error' : self.best_error
+            }
+    
+    def plot_pulse(self):
+        dt = self.tau / self.pulse_length
+        times = np.arange(dt, self.tau + self.dt, dt)
+
+        plt.figure(figsize=(7, 4))
+        plt.plot(times/1e-9, self.amps/(2*np.pi*1e6))
+        plt.xlabel('Time (ns)')
+        plt.ylabel('Pulse amp (MHz)')
+        plt.title(r'Shaped pulse')
+        plt.show()
 
 class PulseSequence:
 
@@ -59,98 +96,3 @@ class PulseSequence:
         # self.play(shaped_pulse.amps)
         pulse = shaped_pulse.amps
         self.play(pulse)
-
-class FourierPulse:
-
-    def __init__(self, tau, dt, time_symmetric=True):
-        self.time_symmetric = time_symmetric # Only Cos coefficients
-        self.tau = tau # Time length of pulse
-        self.dt = dt # Sample steps in the pulse
-        self.length = int(np.ceil(tau/dt))
-
-        self.cos_coeffs = np.genfromtxt('/home/daniel/Projects/Random/FortranPulse/100_01tau_p5_coeffs.csv', delimiter=',')
-
-        # Construct pulse from coeffs
-        self.coeffs_to_pulse()
-
-    # @property
-    # def cos_coeffs(self):
-    #     coeffs = np.genfromtxt('/home/daniel/Projects/Random/FortranPulse/Xpi2_1tau_15.csv', delimiter=',')
-    #     return coeffs
-
-    @property
-    def full_coeffs(self):
-
-        c_coeffs = np.array([-0.74170879870490003, 
-                    0.44250378321054457, 
-                    -1.9342070799542541,
-                    0.69858867241981759, 
-                    -3.4174180813195161, 
-                    0.19340803782232863, 
-                    0.75131121570836645, 
-                    2.0912801297414858, 
-                    0.42114672704852507, 
-                    -0.46654074865506834, 
-                    0.40969411054108834
-        ])
-        s_coeffs = np.array([9.2673617038559558e-2, 
-                    -1.8732863462265226, 
-                    1.7219381862779817, 
-                    5.6693855700780248e-2, 
-                    0.45588998095489575, 
-                    1.1142471581716387, 
-                    -1.2380100312434619, 
-                    -0.38038273357031765, 
-                    0.98800600116578241, 
-                    0.60549825408730118
-        ])
-
-        return [c_coeffs, s_coeffs]
-
-    def coeffs_to_pulse(self):
-
-        # Construct pulse array from fourier coefficients.
-        w = 2*np.pi/self.tau
-        times = np.linspace(0, self.tau, self.length)
-        w1 = np.ones(len(times))
-
-        if self.time_symmetric == True:
-            # Construct time symmetric pulse, coeffs = [0, 1, 2, ...]
-            cos_coeffs = self.cos_coeffs
-            n_max = len(cos_coeffs) - 1
-            w1 = w1*cos_coeffs[0]
-
-            for i in range(1, n_max + 1):
-                w1 = w1 + cos_coeffs[i] * np.cos(i * w * times)
-
-            w1 = w1 * w # Scale by 1/tau
-        else:
-            # Constuct general fourier pulse, coeffs = [cos_coeffs, sin_coeffs]
-            [cos_coeffs, sin_coeffs] = self.full_coeffs
-            n_max = len(cos_coeffs) - 1
-            # Check
-            if len(cos_coeffs) == (len(sin_coeffs) + 1):
-                pass
-            else:
-                raise ValueError("Cos and sin coefficients missmatch.")
-            
-            w1 = w1*cos_coeffs[0]
-            for t in range(len(times)):
-                for i in range(1, n_max + 1):
-                    w1[t] = w1[t] + cos_coeffs[i] * np.cos(i * w * times[t])
-                    w1[t] = w1[t] + sin_coeffs[i - 1] * np.sin(i * w * times[t])
-
-            w1 = w1 * w # Scale by 1/tau
-
-        # Set pulse amps
-        self.amps = w1
-
-    def plot_pulse(self):
-        times = np.arange(self.dt, self.tau + self.dt, self.dt)
-
-        fig = plt.figure(figsize=(7, 4))
-        plt.plot(times/1e-9, self.amps/(2*np.pi*1e6))
-        plt.xlabel('Time (ns)')
-        plt.ylabel('Pulse amp (MHz)')
-        plt.title(r'Shaped $X_{\pi/2}$ pulse')
-        plt.show()

@@ -40,5 +40,5 @@ class SpinQubit:
 
         return U
     
-    # TODO: Lab fram unitary
+    # TODO: Lab frame unitary
         
