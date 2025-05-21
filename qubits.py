@@ -27,7 +27,7 @@ class SpinQubit:
         else:
             raise ValueError("Initial state unrecognised: choose 'up' or 'down'.")
 
-    def unitary(self, w1x, w1y, det, dt):
+    def rwUnitary(self, w1x, w1y, det, dt):
 
         det = 2*np.pi*det # Convert to units of radians
         weff = np.sqrt(w1x**2 + w1y**2 + det**2)
@@ -39,4 +39,6 @@ class SpinQubit:
                   - 1.0j*np.sin(beta/2)*(w1x/weff*sigmax() + w1y/weff*sigmay() + det/weff*sigmaz())
 
         return U
+    
+    # TODO: Lab fram unitary
         

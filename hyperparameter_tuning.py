@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from optimisation_algorithims.annealing_optimiser import SimulatedAnnealing
+from optimisation.optimisers import SimulatedAnnealing
 
 # Set global parameters kept constant
 n_max = 15
