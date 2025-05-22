@@ -15,7 +15,7 @@ w1_max = 2*np.pi*40e6
 lambda_val = 1000
 
 # Test
-cooling_rate = 0.5
+cooling_rate = 0.
 opt = SimulatedAnnealing()
 pulse =  opt.run_annealing(
     n_max=n_max,
