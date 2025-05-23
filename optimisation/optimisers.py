@@ -30,7 +30,7 @@ class SimulatedAnnealing:
         # Set default library path if not provided
         if library_path is None:
             library_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
-                                       f"annealing_lib{lib_ext}")
+                                       f"libs/annealing_lib{lib_ext}")
         
         # Load the library
         self.lib = ctypes.CDLL(library_path)

@@ -46,7 +46,7 @@ contains
 
     ! Annealing Parameters
     T = 1 ! Initial temp
-    cooling_rate = 0.95
+    cooling_rate = 0.9
     up_attempt_max = (2*n_max + 1) * 2000
     up_success_max = up_attempt_max / 10
     up_attempt = 0
@@ -127,9 +127,9 @@ contains
         if (up_attempt == up_attempt_max .or. up_success == up_success_max) then
             T = cooling_rate * T
             success_ratio = dble(up_success)/dble(up_attempt)
-            ! print *, "Temperature reduced to ", T
-            ! print *, "Uphill success ratio ", success_ratio
-            ! print *, "Best error= ", E_best
+            print *, "Temperature reduced to ", T
+            print *, "Uphill success ratio ", success_ratio
+            print *, "Best error= ", E_best
             up_attempt = 0
             up_success = 0
         end if
