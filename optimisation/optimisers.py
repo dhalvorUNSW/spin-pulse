@@ -43,8 +43,7 @@ class SimulatedAnnealing:
             ctypes.c_int,                             # amp_dig
             ctypes.c_double,                          # det_max 
             ctypes.c_double,                          # amp_max
-            ctypes.c_double,                          # init_temp
-            ctypes.c_double,                          # cooling_rate
+            ctypes.c_double,                          # init_step
             ctypes.c_double,                          # w1_max
             ctypes.c_double,                          # lambda
             ctypes.c_double,                          # tau
@@ -61,8 +60,7 @@ class SimulatedAnnealing:
                       amp_dig,
                       amp_max,
                       det_max,
-                      init_temp,
-                      cooling_rate,
+                      init_step,
                       w1_max,
                       lambda_val,
                       tau, save_pulse=False):
@@ -113,7 +111,7 @@ class SimulatedAnnealing:
         # Call the Fortran function
         self.lib.run_annealing(
             pulse_length, n_max, band_dig, amp_dig, amp_max, det_max, 
-            init_temp, cooling_rate, w1_max, lambda_val, tau, 
+            init_step, w1_max, lambda_val, tau, 
             best_sin_coeffs, best_cos_coeffs, ctypes.byref(best_error_c)
         )
         

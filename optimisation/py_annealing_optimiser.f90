@@ -14,7 +14,7 @@ contains
 
     ! Main simulated annealing function with C binding for Python interoperability
     subroutine run_annealing(Np, n_max, band_dig, amp_dig, amp_max, det_max, &
-                            init_temp, cooling_rate, w1_max, lambda, tau, init_coeffs, &
+                            w1_max, lambda, tau, init_coeffs, &
                             best_coeffs, best_error) &
                             bind(C, name="run_annealing")
 
@@ -23,8 +23,6 @@ contains
         integer(c_int), value, intent(in) :: n_max        ! Max Fourier coeffs
         integer(c_int), value, intent(in) :: band_dig     ! Samples per 1/tau in spectrum
         integer(c_int), value, intent(in) :: amp_dig      ! Digits in amplitude
-        real(c_double), value, intent(in) :: init_temp    ! Initial temperature
-        real(c_double), value, intent(in) :: cooling_rate ! Temperature cooling rate
         real(c_double), value, intent(in) :: w1_max       ! Max pulse amplitude
         real(c_double), value, intent(in) :: lambda       ! Penalty parameter
         real(c_double), value, intent(in) :: amp_max      ! Max amplitude
@@ -40,13 +38,14 @@ contains
         real(8) :: w1(Np), w1_new(Np) ! Pulse array
         real(8) :: cos_coeffs(n_max), new_coeffs(n_max), step_sizes(n_max) ! Array of Fourier coeffs
         real(8) :: E, E_new, dE, E_best
-        real(8) :: success_ratio, T, P_acc, R1
+        real(8) :: success_ratio, T, P_acc, R1, cooling_rate
         integer :: up_attempt, up_success, up_attempt_max, up_success_max
         integer :: i
         real(8), parameter :: pi = 4.0d0 * atan(1.0d0)
 
         ! Initialize annealing parameters
-        T = init_temp
+        T = 1
+        cooling_rate = 0.95
         up_attempt_max = (2*n_max + 1) * 1000
         up_success_max = up_attempt_max / 10
         up_attempt = 0

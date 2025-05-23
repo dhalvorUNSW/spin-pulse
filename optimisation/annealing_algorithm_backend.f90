@@ -14,7 +14,7 @@ contains
 
     ! Main simulated annealing function with C binding for Python interoperability
     subroutine run_annealing(Np, n_max, band_dig, amp_dig, amp_max, det_max, &
-                            init_temp, cooling_rate, w1_max, lambda, tau, best_sin_coeffs, best_cos_coeffs, best_error) &
+                            init_step, w1_max, lambda, tau, best_sin_coeffs, best_cos_coeffs, best_error) &
                             bind(C, name="run_annealing")
 
     ! Input parameters
@@ -22,8 +22,7 @@ contains
     integer(c_int), value, intent(in) :: n_max        ! Max Fourier coeffs
     integer(c_int), value, intent(in) :: band_dig     ! Samples per 1/tau in spectrum
     integer(c_int), value, intent(in) :: amp_dig      ! Digits in amplitude
-    real(c_double), value, intent(in) :: init_temp    ! Initial temperature
-    real(c_double), value, intent(in) :: cooling_rate ! Temperature cooling rate
+    real(c_double), value, intent(in) :: init_step    ! Initial step size for fourier coeffs
     real(c_double), value, intent(in) :: w1_max       ! Max pulse amplitude
     real(c_double), value, intent(in) :: lambda       ! Penalty parameter
     real(c_double), value, intent(in) :: amp_max      ! Max amplitude
@@ -41,12 +40,13 @@ contains
     real(8) :: cos_coeffs(n_max + 1), new_cos_coeffs(n_max + 1), cos_step_sizes(n_max + 1)
     real(8) :: sin_coeffs(n_max), new_sin_coeffs(n_max), sin_step_sizes(n_max)
     real(8) :: E, E_new, dE, E_best
-    real(8) :: success_ratio, T, P_acc, R1
+    real(8) :: success_ratio, T, P_acc, R1, cooling_rate
     integer :: up_attempt, up_success, up_attempt_max, up_success_max
     integer :: i, updateX
 
     ! Annealing Parameters
-    T = init_temp
+    T = 1 ! Initial temp
+    cooling_rate = 0.95
     up_attempt_max = (2*n_max + 1) * 2000
     up_success_max = up_attempt_max / 10
     up_attempt = 0
@@ -59,11 +59,11 @@ contains
     cos_coeffs(1) = 0.25d0
 
     ! Step sizes
-    cos_step_sizes(1:2) = 0.2d0
-    sin_step_sizes(1) = 0.2d0
+    cos_step_sizes(1:2) = init_step
+    sin_step_sizes(1) = init_step
     do i = 2,n_max
-        cos_step_sizes(i + 1) = cos_step_sizes(i) * 0.6d0
-        sin_step_sizes(i) = sin_step_sizes(i - 1) * 0.6d0
+        cos_step_sizes(i + 1) = cos_step_sizes(i) * 0.5d0
+        sin_step_sizes(i) = sin_step_sizes(i - 1) * 0.5d0
     end do
 
     ! Initialise pulse
