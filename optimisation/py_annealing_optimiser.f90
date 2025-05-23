@@ -40,7 +40,7 @@ contains
         real(8) :: E, E_new, dE, E_best
         real(8) :: success_ratio, T, P_acc, R1, cooling_rate
         integer :: up_attempt, up_success, up_attempt_max, up_success_max
-        integer :: i
+        integer :: i, step
         real(8), parameter :: pi = 4.0d0 * atan(1.0d0)
 
         ! Initialize annealing parameters
@@ -51,6 +51,7 @@ contains
         up_attempt = 0
         up_success = 0
         success_ratio = 1.0d0
+        step = 1
         
         ! Initialize coefficients from input
         cos_coeffs = init_coeffs
@@ -103,11 +104,23 @@ contains
             if (up_attempt == up_attempt_max .or. up_success == up_success_max) then
                 T = cooling_rate * T
                 success_ratio = dble(up_success)/dble(up_attempt)
-                print *, "Temperature reduced to ", T
-                print *, "Uphill success ratio ", success_ratio
-                print *, "Best error= ", E_best
+                ! print *, "Temperature reduced to ", T
+                ! print *, "Uphill success ratio ", success_ratio
+                ! print *, "Best error= ", E_best
                 up_attempt = 0
                 up_success = 0
+                step = step + 1
+                ! Update log
+                ! Open file in append mode
+                open(unit=99, file="annealing_log.txt", status="unknown", position="append", action="write")
+
+                ! Write log message
+                write(99, '(A,I5,A,F10.4,A,F12.6)') "Step: ", step, " Temperature: ", T, "Success ratio: ", success_ratio, &
+                                                    Best Error ", E_best
+
+                ! Close file
+                close(99)
+
             end if
             
         end do

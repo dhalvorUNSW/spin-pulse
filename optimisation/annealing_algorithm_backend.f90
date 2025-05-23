@@ -42,7 +42,7 @@ contains
     real(8) :: E, E_new, dE, E_best
     real(8) :: success_ratio, T, P_acc, R1, cooling_rate
     integer :: up_attempt, up_success, up_attempt_max, up_success_max
-    integer :: i, updateX
+    integer :: i, updateX, step
 
     ! Annealing Parameters
     T = 1 ! Initial temp
@@ -52,6 +52,7 @@ contains
     up_attempt = 0
     up_success = 0
     success_ratio = 1.0d0
+    step = 0
 
     ! Initialise coeffs
     sin_coeffs = 0.0d0
@@ -127,11 +128,21 @@ contains
         if (up_attempt == up_attempt_max .or. up_success == up_success_max) then
             T = cooling_rate * T
             success_ratio = dble(up_success)/dble(up_attempt)
-            print *, "Temperature reduced to ", T
-            print *, "Uphill success ratio ", success_ratio
-            print *, "Best error= ", E_best
+            ! print *, "Temperature reduced to ", T
+            ! print *, "Uphill success ratio ", success_ratio
+            ! print *, "Best error= ", E_best
             up_attempt = 0
             up_success = 0
+            step = step + 1
+
+            ! Update log
+            ! Open file in append mode
+            open(unit=99, file="annealing_log.txt", status="unknown", position="append", action="write")
+            ! Write log message
+            write(99, '(A,I5,A,F10.4,A,F12.6)') "Step: ", step, " Best energy: ", E_best, "Success ratio: ", success_ratio
+            ! Close file
+            close(99)
+
         end if
 
     end do
@@ -142,15 +153,6 @@ contains
     best_error = E_best
 
     w1 = full_coeffs_to_pulse(best_cos_coeffs, best_sin_coeffs, Np, tau)
-    ! ! Save pulse to csv
-    ! open(unit=10, file="Xpi2_20_asym_5MHz.csv", status="replace", action="write")
-    ! do i = 1, Np
-    !     write(10,*) w1(i)
-    ! end do
-    ! close(10)
-
-    ! print *, "Best cos coeffs = ", best_cos_coeffs
-    ! print *, "Best sin coeffs = ", best_sin_coeffs
 
     end subroutine run_annealing
 

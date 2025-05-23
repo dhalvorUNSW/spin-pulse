@@ -1,0 +1,101 @@
+Step:     1 Temperature:     0.9000Success ratio:     0.969305
+Step:     1 Temperature:     0.9000Success ratio:     0.988468
+Step:     1 Temperature:     0.9000Success ratio:     0.982456
+Step:     2 Temperature:     0.8100Success ratio:     0.959123
+Step:     3 Temperature:     0.7290Success ratio:     0.952165
+Step:     4 Temperature:     0.6561Success ratio:     0.972447
+Step:     5 Temperature:     0.5905Success ratio:     0.967073
+Step:     6 Temperature:     0.5314Success ratio:     0.955197
+Step:     7 Temperature:     0.4783Success ratio:     0.941704
+Step:     8 Temperature:     0.4305Success ratio:     0.920851
+Step:     9 Temperature:     0.3874Success ratio:     0.912647
+Step:    10 Temperature:     0.3487Success ratio:     0.940860
+Step:    11 Temperature:     0.3138Success ratio:     0.939808
+Step:    12 Temperature:     0.2824Success ratio:     0.930027
+Step:    13 Temperature:     0.2542Success ratio:     0.939177
+Step:    14 Temperature:     0.2288Success ratio:     0.941493
+Step:    15 Temperature:     0.2059Success ratio:     0.931264
+Step:    16 Temperature:     0.1853Success ratio:     0.961979
+Step:    17 Temperature:     0.1668Success ratio:     0.961538
+Step:    18 Temperature:     0.1501Success ratio:     0.927152
+Step:    19 Temperature:     0.1351Success ratio:     0.940860
+Step:    20 Temperature:     0.1216Success ratio:     0.936246
+Step:    21 Temperature:     0.1094Success ratio:     0.938547
+Step:    22 Temperature:     0.0985Success ratio:     0.931264
+Step:    23 Temperature:     0.0886Success ratio:     0.927767
+Step:    24 Temperature:     0.0798Success ratio:     0.898588
+Step:    25 Temperature:     0.0718Success ratio:     0.889077
+Step:    26 Temperature:     0.0646Success ratio:     0.868127
+Step:    27 Temperature:     0.0581Success ratio:     0.891720
+Step:    28 Temperature:     0.0523Success ratio:     0.906736
+Step:    29 Temperature:     0.0471Success ratio:     0.913441
+Step:    30 Temperature:     0.0424Success ratio:     0.890208
+Step:    31 Temperature:     0.0382Success ratio:     0.891720
+Step:    32 Temperature:     0.0343Success ratio:     0.880872
+Step:    33 Temperature:     0.0309Success ratio:     0.871008
+Step:    34 Temperature:     0.0278Success ratio:     0.900708
+Step:    35 Temperature:     0.0250Success ratio:     0.901481
+Step:    36 Temperature:     0.0225Success ratio:     0.869025
+Step:    37 Temperature:     0.0203Success ratio:     0.896287
+Step:    38 Temperature:     0.0182Success ratio:     0.906344
+Step:    39 Temperature:     0.0164Success ratio:     0.898396
+Step:    40 Temperature:     0.0148Success ratio:     0.882724
+Step:     1 Best energy:     0.0005Success ratio:     0.975383
+Step:     2 Best energy:     0.0004Success ratio:     0.973349
+Step:     3 Best energy:     0.0004Success ratio:     0.972222
+Step:     4 Best energy:     0.0004Success ratio:     0.956938
+Step:     5 Best energy:     0.0004Success ratio:     0.970874
+Step:     6 Best energy:     0.0004Success ratio:     0.950226
+Step:     7 Best energy:     0.0004Success ratio:     0.945307
+Step:     8 Best energy:     0.0004Success ratio:     0.954329
+Step:     9 Best energy:     0.0004Success ratio:     0.955197
+Step:    10 Best energy:     0.0003Success ratio:     0.948938
+Step:    11 Best energy:     0.0003Success ratio:     0.969977
+Step:    12 Best energy:     0.0003Success ratio:     0.947440
+Step:    13 Best energy:     0.0003Success ratio:     0.932297
+Step:    14 Best energy:     0.0003Success ratio:     0.935204
+Step:    15 Best energy:     0.0003Success ratio:     0.916230
+Step:    16 Best energy:     0.0003Success ratio:     0.952813
+Step:    17 Best energy:     0.0000Success ratio:     0.920447
+Step:    18 Best energy:     0.0000Success ratio:     0.926130
+Step:    19 Best energy:     0.0000Success ratio:     0.945307
+Step:    20 Best energy:     0.0000Success ratio:     0.941282
+Step:    21 Best energy:     0.0000Success ratio:     0.929409
+Step:    22 Best energy:     0.0000Success ratio:     0.941282
+Step:    23 Best energy:     0.0000Success ratio:     0.919641
+Step:    24 Best energy:     0.0000Success ratio:     0.933126
+Step:    25 Best energy:     0.0000Success ratio:     0.924499
+Step:    26 Best energy:     0.0000Success ratio:     0.933126
+Step:    27 Best energy:     0.0000Success ratio:     0.932091
+Step:    28 Best energy:     0.0000Success ratio:     0.937291
+Step:    29 Best energy:     0.0000Success ratio:     0.944882
+Step:    30 Best energy:     0.0000Success ratio:     0.914833
+Step:    31 Best energy:     0.0000Success ratio:     0.903032
+Step:    32 Best energy:     0.0000Success ratio:     0.919440
+Step:    33 Best energy:     0.0000Success ratio:     0.881242
+Step:    34 Best energy:     0.0000Success ratio:     0.909091
+Step:    35 Best energy:     0.0000Success ratio:     0.914236
+Step:    36 Best energy:     0.0000Success ratio:     0.906344
+Step:    37 Best energy:     0.0000Success ratio:     0.903420
+Step:    38 Best energy:     0.0000Success ratio:     0.889454
+Step:    39 Best energy:     0.0000Success ratio:     0.905758
+Step:    40 Best energy:     0.0000Success ratio:     0.903614
+Step:    41 Best energy:     0.0000Success ratio:     0.888701
+Step:    42 Best energy:     0.0000Success ratio:     0.887762
+Step:    43 Best energy:     0.0000Success ratio:     0.886824
+Step:    44 Best energy:     0.0000Success ratio:     0.885142
+Step:    45 Best energy:     0.0000Success ratio:     0.889454
+Step:    46 Best energy:     0.0000Success ratio:     0.898204
+Step:    47 Best energy:     0.0000Success ratio:     0.879765
+Step:    48 Best energy:     0.0000Success ratio:     0.875365
+Step:    49 Best energy:     0.0000Success ratio:     0.865979
+Step:    50 Best energy:     0.0000Success ratio:     0.863309
+Step:    51 Best energy:     0.0000Success ratio:     0.875182
+Step:    52 Best energy:     0.0000Success ratio:     0.866158
+Step:    53 Best energy:     0.0000Success ratio:     0.819672
+Step:    54 Best energy:     0.0000Success ratio:     0.834161
+Step:    55 Best energy:     0.0000Success ratio:     0.857493
+Step:    56 Best energy:     0.0000Success ratio:     0.850547
+Step:    57 Best energy:     0.0000Success ratio:     0.820152
+Step:    58 Best energy:     0.0000Success ratio:     0.818554
+Step:    59 Best energy:     0.0000Success ratio:     0.831848
