@@ -60,11 +60,11 @@ contains
     cos_coeffs(1) = 0.25d0
 
     ! Step sizes
-    cos_step_sizes(1:2) = init_step
-    sin_step_sizes(1) = init_step
+    cos_step_sizes(1:2) = 0.5d0
+    sin_step_sizes(1) = 0.5d0
     do i = 2,n_max
-        cos_step_sizes(i + 1) = cos_step_sizes(i) * 0.5d0
-        sin_step_sizes(i) = sin_step_sizes(i - 1) * 0.5d0
+        cos_step_sizes(i + 1) = cos_step_sizes(i) * init_step
+        sin_step_sizes(i) = sin_step_sizes(i - 1) * init_step
     end do
 
     ! Initialise pulse
