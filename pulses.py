@@ -1,42 +1,39 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import os
-import json
 
-class ShapedPulse:
+class Pulse:
+    def __init__(self, tau, sample_rate=1e9):
+        self.tau = tau # Length of pulse in time
+        self.sample_rate = sample_rate # Sample rate of pulse (default of 1GS/s)
+        # Generate extra properties
+        self.dt = 1/sample_rate # Time steps of pulse
 
-    def __init__(self, amps, tau, pm_det, pm_amp, best_error):
-
-        self.amps = amps # Array of amplitudes in pulse
-        self.tau = tau # Length of pulse in seconds
-        self.pulse_length = len(amps) # Number of points in pulse
-        self.pm_det = pm_det # Width of frequency detuning pulse is robust to
-        self.pm_amp = pm_amp # Width of amplitude change pulse is robust to
-        self.amp_max = max(amps) # maximum amplitude of pulse
-        self.best_error = best_error # Best error calculated by cost function
-
-    # Encoding function for saving pulse
-    def encode_pulse(self):
-        return {
-                'amps' : list(self.amps),
-                'tau' : self.tau,
-                'pulse_length' : self.pulse_length,
-                'pm_det' : self.pm_det,
-                'pm_amp' : self.pm_amp,
-                'amp_max' : self.amp_max,
-                'best_error' : self.best_error
-            }
+    def generate_pulse_amps(self):
+        raise NotImplementedError("Subclasses must implement this method.")
     
     def plot_pulse(self):
-        dt = self.tau / self.pulse_length
-        times = np.arange(dt, self.tau + self.dt, dt)
-
+        if self.amps is None:
+            raise ValueError("Amplitudes not generated yet.")
+        
+        times = np.arange(self.dt, self.tau + self.dt, self.dt)
         plt.figure(figsize=(7, 4))
-        plt.plot(times/1e-9, self.amps/(2*np.pi*1e6))
-        plt.xlabel('Time (ns)')
-        plt.ylabel('Pulse amp (MHz)')
-        plt.title(r'Shaped pulse')
+        plt.plot(times, self.amps/(2*np.pi))
+        plt.xlabel('Time (s)')
+        plt.ylabel(r'Pulse amplitude, $\omega/2\pi$ (Hz)')
+        plt.grid(True)
         plt.show()
+
+class cwPulse(Pulse):
+    def __init__(self, tau, peak_amp, sample_rate=1e9):
+        super().__init__(tau, sample_rate)
+        self.peak_amp = peak_amp # Peak amplitude of pulse in rad/s
+        self.generate_pulse_amps()
+
+    def generate_pulse_amps(self):
+        self.amps = self.peak_amp * np.ones(int(np.ceil(self.tau/self.dt)))
+
+    
+        
 
 class PulseSequence:
 
