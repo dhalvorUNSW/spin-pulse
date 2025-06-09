@@ -5,12 +5,24 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 from tqdm import tqdm
 
+from qubits import SpinQubit
+
 C1 = '#34A300' # Green
 C2 = '#DD404B' # Red
 C3 = '#628395' # Blue
 C4 = '#B57E2C' # Brown
 C5 = '#360568' # Purple
 colors = [C3, C4, C5]
+
+def cw_rabi_chevron(fRabi, times, detunings, filtering=False):
+
+    # Generate pulse sequence
+    q = SpinQubit()
+    
+
+    # 
+
+    return projections
 
 def evolveState(qubit, pulse_sequence, det_noise):
 

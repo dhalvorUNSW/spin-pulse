@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
+from scipy.signal import convolve
 
 class Pulse:
     def __init__(self, tau, sample_rate=1e9):
@@ -14,16 +16,16 @@ class Pulse:
     def plot_pulse(self):
         if self.amps is None:
             raise ValueError("Amplitudes not generated yet.")
-        
+                
         times = np.arange(self.dt, self.tau + self.dt, self.dt)
         plt.figure(figsize=(7, 4))
-        plt.plot(times, self.amps/(2*np.pi))
-        plt.xlabel('Time (s)')
-        plt.ylabel(r'Pulse amplitude, $\omega/2\pi$ (Hz)')
+        plt.plot(times/1e-9, self.amps/(2*np.pi*1e6))
+        plt.xlabel('Time (ns)')
+        plt.ylabel(r'Pulse amplitude, $\omega/2\pi$ (MHz)')
         plt.grid(True)
         plt.show()
 
-class cwPulse(Pulse):
+class cw_pulse(Pulse):
     def __init__(self, tau, peak_amp, sample_rate=1e9):
         super().__init__(tau, sample_rate)
         self.peak_amp = peak_amp # Peak amplitude of pulse in rad/s
@@ -32,64 +34,90 @@ class cwPulse(Pulse):
     def generate_pulse_amps(self):
         self.amps = self.peak_amp * np.ones(int(np.ceil(self.tau/self.dt)))
 
-    
         
 
 class PulseSequence:
 
-    def __init__(self, amp_offset=0.0, det_offset=0.0, dt=1e-9):
+    def __init__(self, dt=1e-9):
         self.amps = np.array([])
-        self.amp_noise = np.array([])
-        self.dt = dt # Step size in pulse sequence
-        self.det_offset = det_offset # Detuning of pulse
-        self.amp_offset = amp_offset
+        self.tau = 0
+        self.dt = dt
 
-    @property
-    def length(self):
-        """
-        Property that returns the length of the pulse sequence.
-        """
-        return len(self.amps)
-    
-    @property
-    def time(self):
-        """
-        Property that returns the length in time of the pulse sequence.
-        """
-        return self.length * self.dt
+    def update_times(self):
+        self.times = np.arange(self.dt, self.tau + self.dt, self.dt)
 
-    def play(self, pulse):
-        """
-        Add a given pulse to the sequence
-        """
-        self.amps = np.concatenate([self.amps, pulse])
-        self.det = self.det_offset*np.ones(len(self.amps)) # Resize det array
+    def add_pulse(self, pulse):
 
-    ## Library of pulse shapes
-    def wait(self, tau):
+        if self.dt is None:
+            self.dt = pulse.dt
+        elif pulse.dt != self.dt:
+            raise ValueError("Added pulse time-step not consistent with pulse sequence dt. \n" \
+            f"Please redefine pulse sequence with correct dt = {pulse.dt}")
+        
+        self.amps = np.concatenate([self.amps, pulse.amps])
+        self.tau += pulse.tau 
+        self.update_times()
+
+    def add_pause(self, pause_time):
         """
         Adds wait time at defined sample rate.
 
         Args:
             length: Length of pulse in s.
         """
-        pulse = np.zeros(int(np.ceil(tau/self.dt)))
-        self.play(pulse)
+        if self.dt is None:
+            self.dt = 1e-9
 
-    def cw(self, tau, drive_speed):
+        pause = np.zeros(int(np.ceil(pause_time/self.dt)))
+        self.amps = np.concatenate([self.amps, pause])
+        self.tau += pause_time
+        self.update_times()
+
+    def gaussian_filter(self, output_dt=0.1e-9, fc=500e6, turn_off=False):
         """
-        Adds constant pulse at defined sample rate and amplitude.
-
-        Args:
-            length: Length of pulse in s.
-            drive_speed: Drive speed pulse in units of Hz (rabi frequency).
+        Apply a *causal* Gaussian low-pass filter approximating a fc bandwidth
+        to an input waveform using convolution.
         """
-        amplitude = 2 * np.pi * drive_speed
-        pulse = amplitude * np.ones(int(np.ceil(tau/self.dt)))
-        self.play(pulse)
 
-    def X2_custom(self, shaped_pulse): 
-        # TODO: add some check that shaped_pulse is compatable with 
-        # self.play(shaped_pulse.amps)
-        pulse = shaped_pulse.amps
-        self.play(pulse)
+        # Define time arrays
+        t_input = np.arange(len(self.amps)) * self.dt
+        t_out = np.arange(0, t_input[-1] + self.dt, output_dt)
+
+        # Interpolate waveform using 'previous' to keep step-like transitions
+        interpolator = interp1d(t_input, self.amps, kind='previous', fill_value="extrapolate")
+        amps_upsampled = interpolator(t_out)
+        # Add zero to first point in waveform
+        amps_upsampled = np.insert(amps_upsampled, 0, 0.0)
+
+        # Gaussian parameters
+        sigma_t = 1 / (2 * np.pi * fc)
+
+        # Define causal Gaussian: t >= 0 only
+        t_kernel = np.arange(0, 5 * sigma_t + output_dt, output_dt)
+        gaussian_kernel = np.exp(-0.5 * (t_kernel / sigma_t)**2)
+
+        # Normalize to preserve amplitude
+        gaussian_kernel /= np.sum(gaussian_kernel)
+
+        # Convolve and trim to match output length
+        y_full = convolve(amps_upsampled, gaussian_kernel, mode='full')
+
+        # Update sequence parameters
+        self.amps = y_full[:len(t_out)] # Remove zero point
+        self.times = t_out[:] # Remove zero point
+        self.dt = output_dt
+
+    def plot_pulse(self):
+
+        if self.amps is None:
+            raise ValueError("Amplitudes not generated yet.")
+        
+        plt.figure(figsize=(7, 4))
+        plt.plot(self.times/1e-9, self.amps/(2*np.pi*1e6))
+        plt.xlabel('Time (ns)')
+        plt.ylabel(r'Pulse amplitude, $\omega/2\pi$ (MHz)')
+        plt.grid(True)
+        plt.show()
+
+
+

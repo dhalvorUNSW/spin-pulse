@@ -1,0 +1,2 @@
+- Make plotting of pulses look step-like with intervals of dt.
+- Implement easy rabi chevron using pulse sequences
