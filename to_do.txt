@@ -1,2 +1,2 @@
 - Make plotting of pulses look step-like with intervals of dt.
-- Implement easy rabi chevron using pulse sequences
+- Add simulation backend in fortran for 1d and 2d simulations of state evolution

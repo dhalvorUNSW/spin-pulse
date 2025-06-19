@@ -63,7 +63,7 @@ class SimulatedAnnealing:
                       init_step,
                       w1_max,
                       lambda_val,
-                      tau, save_pulse=False):
+                      tau):
         """
         Run the simulated annealing algorithm.
         
@@ -121,21 +121,7 @@ class SimulatedAnnealing:
         # Save pulse as instance of ShapedPulse class
         times = np.linspace(0, tau, pulse_length)
         amps = self.coeffs_to_pulse(best_sin_coeffs, best_cos_coeffs, times, tau)
-        shaped_pulse = pulses.ShapedPulse(amps, tau, det_max, amp_max, best_error)
-
-        # Save pulse details to JSON
-        if save_pulse == True:
-            # Directory and filename
-            directory = "PulseLibrary"
-            filename = "custom_pulse.json"
-            filepath = os.path.join(directory, filename)
-
-            # Create the directory if it doesn't exist
-            os.makedirs(directory, exist_ok=True)
-
-            # Write dictionary to a JSON file inside the directory
-            with open(filepath, "w") as json_file:
-                json.dump(shaped_pulse.encode_pulse(), json_file, indent=4)
+        shaped_pulse = pulses.shaped_pulse(tau, amps, det_max, amp_max, best_error)
         
         return shaped_pulse
     

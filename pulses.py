@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from scipy.signal import convolve
+from scipy.io import savemat, loadmat
+from datetime import datetime
 
 class Pulse:
     def __init__(self, tau, sample_rate=1e9):
@@ -34,14 +36,60 @@ class cw_pulse(Pulse):
     def generate_pulse_amps(self):
         self.amps = self.peak_amp * np.ones(int(np.ceil(self.tau/self.dt)))
 
+class shaped_pulse(Pulse):
+    def __init__(self, tau, amps, det_max, amp_max, infidelity, sample_rate=1e9):
+        super().__init__(tau, sample_rate)
+        self.amps = amps
+        self.peak_amp = np.max(amps)
+        self.det_max = det_max
+        self.amp_max = amp_max
+        self.infidelity = infidelity
+    
+    def save_to_mat(self, folder=None):
+        # Generate filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        time = int(np.ceil(self.tau/1e-9))
+        filename = f"{time}ns_{timestamp}.mat"
+        if folder:
+            import os
+            filename = os.path.join(folder, filename)
+
+        pulsedict = {
+            'normalised_amps' : self.amps/self.peak_amp,
+            'peak_amp' : self.peak_amp,
+            'tau' : self.tau,
+            'dt' : 1/self.sample_rate,
+            'det_max' : self.det_max,
+            'amp_max' : self.amp_max,
+            'best error' : self.infidelity
+        }        
+
+        # save to .mat
+        savemat(filename, pulsedict)
+        print(f'Saved pulse to .mat file named: {filename}')
         
+def mat_to_pulse(file_path):
+    mat = loadmat(file_path)
+
+    amps = mat['normalised_amps'][0]*float(mat['peak_amp'][0][0])
+    tau = float(mat['tau'][0][0])
+    sample_rate = 1/float(mat['dt'][0][0])
+    det_max = float(mat['det_max'][0][0])
+    amp_max = float(mat['amp_max'][0][0])
+    infidelity = float(mat['best error'][0][0])
+
+    pulse = shaped_pulse(tau, amps, det_max, amp_max, infidelity, sample_rate)
+
+    return pulse
+
 
 class PulseSequence:
 
-    def __init__(self, dt=1e-9):
+    def __init__(self, det=0, dt=1e-9):
         self.amps = np.array([])
         self.tau = 0
         self.dt = dt
+        self.det = det # Frequency detuning of pulse in rotating frame
 
     def update_times(self):
         self.times = np.arange(self.dt, self.tau + self.dt, self.dt)

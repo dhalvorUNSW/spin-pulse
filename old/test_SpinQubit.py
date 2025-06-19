@@ -1,7 +1,7 @@
 #%%
 from simulator.qubits import SpinQubit
 import pulses
-from simulator_test import evolveState, plotBlochSphere, plotProjection
+from simulator import evolveState, plotBlochSphere, plotProjection
 from noise import BroadbandNoise
 import numpy as np
 from tqdm import tqdm
