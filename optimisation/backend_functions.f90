@@ -270,9 +270,9 @@ contains
             if (up_attempt == up_attempt_max .or. up_success == up_success_max) then
                 T = cooling_rate * T
                 success_ratio = dble(up_success)/dble(up_attempt)
-                print *, "Temperature reduced to ", T
-                print *, "Uphill success ratio ", success_ratio
-                print *, "Best error= ", E_best
+                ! print *, "Temperature reduced to ", T
+                ! print *, "Uphill success ratio ", success_ratio
+                ! print *, "Best error= ", E_best
                 up_attempt = 0
                 up_success = 0
 
