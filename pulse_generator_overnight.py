@@ -11,7 +11,7 @@ save_folder = 'q2pulses/1MHz_30MHz/amp_corrected'
 
 # Constants
 dt = 1e-9
-band_dig_1 = 11 #21
+band_dig_1 = 11
 band_dig_2 = 31
 amp_dig = 1
 amp_max = 0
@@ -21,8 +21,9 @@ l = 1e3
 learning_rate = 1e16
 f_max = 300e6
 
-trial_nums = 5
-pulse_taus = 16e-9 * np.arange(1, 25, 1)
+trial_nums = 3
+# pulse_taus = 16e-9 * np.arange(1, 25, 1)
+pulse_taus = 1e-9 * np.array([10, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 240, 280, 300, 350, 400])
 pulse_list = []
 error_list = []
 
@@ -41,7 +42,7 @@ for n in range(len(pulse_taus)):
     
     tau = pulse_taus[n]
     Np = int(np.ceil(tau/dt))
-    n_max = min(30, int(np.floor(tau*f_max)))
+    n_max = min(20, int(np.floor(tau*f_max)))
     print('-------------------------------')
     print(f'Starting {tau/1e-9} ns trials.')
 
@@ -51,7 +52,7 @@ for n in range(len(pulse_taus)):
         opt = SimulatedAnnealing()
         grad = GradientAscent()
         pulse = opt.run_annealing(Np, n_max, band_dig_1, amp_dig, amp_max, det_max, w1_max, l, tau)
-        pulse = grad.run_grad_ascent(Np, band_dig_2, amp_dig, det_max, amp_max, w1_max, learning_rate, tau, w1x=pulse.amps)
+        # pulse = grad.run_grad_ascent(Np, band_dig_2, amp_dig, det_max, amp_max, w1_max, learning_rate, tau, w1x=pulse.amps)
         pulse_list.append(pulse)
         error_list.append(pulse.best_error)
 

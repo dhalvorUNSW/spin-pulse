@@ -189,7 +189,7 @@ contains
         ! Annealing Parameters
         T = 1 ! Initial temp
         cooling_rate = 0.9
-        up_attempt_max = (2*n_max + 1) * 2000
+        up_attempt_max = (2*n_max + 1) * 4000
         up_success_max = up_attempt_max / 10
         up_attempt = 0
         up_success = 0
