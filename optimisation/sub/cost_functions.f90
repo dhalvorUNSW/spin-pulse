@@ -1,7 +1,10 @@
 ! Module containing cost functions for optimisation of pulse shapes
 
 module cost_functions
+
     use sim_functions
+    use matrix_utils
+
     implicit none
 
 contains
@@ -21,6 +24,24 @@ contains
         N = size(A)  ! Get number of elements
         mse = sum((A - B) ** 2) / dble(N)  ! Compute MSE
     end function immse
+
+    function approxGradient(Xj, Pj, Hk, dt) result(grad)
+    
+        implicit none
+        ! Input variables
+        complex(8), intent(in) :: Xj(2, 2), Pj(2, 2), Hk(2, 2)
+        real(8), intent(in) :: dt
+
+        ! local variables
+        complex(8) :: ket(2, 2), trace1, trace2
+        real(8) :: grad
+
+        ket = (0.0d0, 1.0d0) * dt * matmul(Hk, Xj)
+        trace1 = trace2x2(matmul(conjg(transpose(Pj)), ket))
+        trace2 = trace2x2(matmul(conjg(transpose(Xj)), Pj))
+        grad = -0.5d0 * real(trace1 * trace2)
+
+    end function approxGradient
 
     function xy_unitary_error_X2(w1x, w1y, w1_max, amp_max, tau, lambda, band_dig, amp_dig, det_max) result(E)
         implicit none

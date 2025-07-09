@@ -4,6 +4,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 from tqdm import tqdm
+from optimisation.backend_wrapper import evolveState_fast
 
 from qubits import SpinQubit
 from pulses import cw_pulse, PulseSequence
@@ -14,6 +15,36 @@ C3 = '#628395' # Blue
 C4 = '#B57E2C' # Brown
 C5 = '#360568' # Purple
 colors = [C3, C4, C5]
+
+def amp_rabi_map(pulse_sequence, amplitudes, detunings, plot_output=True):
+    """
+    Generate map of detuning vs pulse amplitude for arb pulse sequence.
+    """
+
+    projections = np.zeros([len(amplitudes), len(detunings)])
+    original_amps = pulse_sequence.amps
+
+    for d in tqdm(range(len(detunings))):
+        for a in range(len(amplitudes)):
+            q1 = SpinQubit()
+            pulse_sequence.det = detunings[d]
+            pulse_sequence.amps = original_amps * amplitudes[a]
+            states = evolveState(q1, pulse_sequence)
+            t_projs = plotProjection(states, pulse_sequence, plot_output=False)
+            projections[a, d] = t_projs[-1]
+
+    projections = np.flip(projections, 0)
+
+    if plot_output == True:
+        fig, ax = plt.subplots()
+        im = ax.imshow(projections, interpolation=None,
+                       extent=[detunings.min()/1e6, detunings.max()/1e6, 0, amplitudes[-1]])
+        ax.set_aspect('auto')
+        ax.set_xlabel(r'Detuning: $f - f_0 (MHz)$')
+        ax.set_ylabel('Amps')
+        fig.colorbar(im, ax=ax, label=r"$|0\rangle$ probability")
+
+    return projections
 
 def cw_rabi_chevron(fRabi, times, detunings, filtering=False, plot_output=True):
     """
@@ -30,7 +61,7 @@ def cw_rabi_chevron(fRabi, times, detunings, filtering=False, plot_output=True):
             # Generate pulse
             dt = times[1] - times[0]
             pulse = cw_pulse(times[-1], wRabi, sample_rate=1/dt)
-            sequence = PulseSequence(dt = dt)
+            sequence = PulseSequence(det=det, dt = dt)
             sequence.add_pulse(pulse)
             # Simulate pulse
             q = SpinQubit()
@@ -43,10 +74,11 @@ def cw_rabi_chevron(fRabi, times, detunings, filtering=False, plot_output=True):
                # Generate pulse
                 dt_in = times[1] - times[0]
                 pulse = cw_pulse(times[t], wRabi, sample_rate=1/dt_in)
-                sequence = PulseSequence(dt = dt_in)
+                sequence = PulseSequence(det=det, dt = dt_in)
                 sequence.add_pulse(pulse)
                 sequence.add_pause(dt_in) # Add sufficient pause for ring-down
                 sequence.gaussian_filter(output_dt=1e-10, fc=500e6)
+
                 q = SpinQubit()
                 states = evolveState(q, sequence)
                 t_projs = plotProjection(states, sequence, plot_output=False)
@@ -57,11 +89,33 @@ def cw_rabi_chevron(fRabi, times, detunings, filtering=False, plot_output=True):
     if plot_output == True:
         fig, ax = plt.subplots()
         im = ax.imshow(projections, interpolation=None,
-                       extent=[detunings.min(), detunings.max(), 0, times[-1]/1e-9])
+                       extent=[detunings.min()/1e6, detunings.max()/1e6, 0, times[-1]/1e-9])
         ax.set_aspect('auto')
-        ax.set_xlabel(r'Detuning: $f - f_0 (Hz)$')
+        ax.set_xlabel(r'Detuning: $f - f_0 (MHz)$')
         ax.set_ylabel('Time (ns)')
         fig.colorbar(im, ax=ax, label=r"$|0\rangle$ probability")
+
+    return projections
+
+def projection_spectrum(pulse_sequence, detunings, plot_output=True, log_scale=False):
+
+    projections = np.zeros(len(detunings))
+    
+    for d in range(len(detunings)):
+        q = SpinQubit()
+        pulse_sequence.det = detunings[d]
+        states = evolveState(q, pulse_sequence)
+        t_projs = plotProjection(states, pulse_sequence, plot_output=False)
+        projections[d] = t_projs[-1]
+
+    if plot_output:
+        fig = plt.figure(figsize=(7, 4))
+        plt.plot(detunings/1e6, projections, color=C5)
+        plt.xlabel('Detuning (MHz)')
+        plt.ylabel(r'State projection: $|\langle \phi | \psi (t) \rangle|^2$')
+        plt.title('State projection after pulse.')
+        if log_scale:
+            plt.yscale('log')
 
     return projections
 
@@ -69,21 +123,30 @@ def evolveState(qubit, pulse_sequence):
     """
     Evoles state of qubit given qubit unitary through pulse sequence.
     """
-
-    N = len(pulse_sequence.amps)
-    # Temporary single axis
+    evolve_wrapper = evolveState_fast()
+    Np = len(pulse_sequence.amps)
     w1x = pulse_sequence.amps
-    w1y = np.zeros(N)
+    w1y = np.zeros(Np)
     dt = pulse_sequence.dt
-    det = pulse_sequence.det
+    det = np.ones(Np) * pulse_sequence.det
 
-    states = np.zeros((len(w1x), 2, 1), dtype=complex)
+    psi0 = np.array([1.0 + 0.0j, 0.0 + 0.0j])  # Initial state
+    states = evolve_wrapper.evolve(dt, w1x, w1y, det, psi0)
+    
+    # N = len(pulse_sequence.amps)
+    # # Temporary single axis
+    # w1x = pulse_sequence.amps
+    # w1y = np.zeros(N)
+    # dt = pulse_sequence.dt
+    # det = pulse_sequence.det
 
-    for i in range(N):
+    # states = np.zeros((len(w1x), 2, 1), dtype=complex)
 
-        U = qubit.unitary(w1x[i], w1y[i], det, dt)
-        qubit.state = np.matmul(U, qubit.state)
-        states[i, :, :] = qubit.state
+    # for i in range(N):
+
+    #     U = qubit.unitary(w1x[i], w1y[i], det, dt)
+    #     qubit.state = np.matmul(U, qubit.state)
+    #     states[i, :, :] = qubit.state
 
     return states
 

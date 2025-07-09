@@ -37,13 +37,13 @@ class cw_pulse(Pulse):
         self.amps = self.peak_amp * np.ones(int(np.ceil(self.tau/self.dt)))
 
 class shaped_pulse(Pulse):
-    def __init__(self, tau, amps, det_max, amp_max, infidelity, sample_rate=1e9):
+    def __init__(self, tau, amps, det_max, amp_max, best_error, sample_rate=1e9):
         super().__init__(tau, sample_rate)
         self.amps = amps
         self.peak_amp = np.max(amps)
         self.det_max = det_max
         self.amp_max = amp_max
-        self.infidelity = infidelity
+        self.best_error = best_error
     
     def save_to_mat(self, folder=None):
         # Generate filename
@@ -61,7 +61,7 @@ class shaped_pulse(Pulse):
             'dt' : 1/self.sample_rate,
             'det_max' : self.det_max,
             'amp_max' : self.amp_max,
-            'best error' : self.infidelity
+            'best error' : self.best_error
         }        
 
         # save to .mat
@@ -76,9 +76,9 @@ def mat_to_pulse(file_path):
     sample_rate = 1/float(mat['dt'][0][0])
     det_max = float(mat['det_max'][0][0])
     amp_max = float(mat['amp_max'][0][0])
-    infidelity = float(mat['best error'][0][0])
+    best_error = float(mat['best error'][0][0])
 
-    pulse = shaped_pulse(tau, amps, det_max, amp_max, infidelity, sample_rate)
+    pulse = shaped_pulse(tau, amps, det_max, amp_max, best_error, sample_rate)
 
     return pulse
 

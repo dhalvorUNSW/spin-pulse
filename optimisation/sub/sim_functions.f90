@@ -37,11 +37,18 @@ contains
         weff = sqrt(w1x**2 + w1y**2 + (2.0d0 * pi * det)**2)
         beta = weff * dt
 
-        ! Construct unitary propagator U
-        U(1,1) = dcos(beta/2.0d0) - (0.0d0,1.0d0) * (2.0d0 * pi * det) / weff * dsin(beta/2.0d0)
-        U(1,2) = -(0.0d0,1.0d0) * w1x / weff * dsin(beta/2.0d0) - (1.0d0,0.0d0) * w1y / weff * dsin(beta/2.0d0)
-        U(2,1) = -(0.0d0,1.0d0) * w1x / weff * dsin(beta/2.0d0) + (1.0d0,0.0d0) * w1y / weff * dsin(beta/2.0d0)
-        U(2,2) = dcos(beta/2.0d0) + (0.0d0,1.0d0) * (2.0d0 * pi * det) / weff * dsin(beta/2.0d0)
+        if (weff == 0.0d0) then
+            U(1,1) = (1.0d0, 0.0d0)
+            U(1,2) = (0.0d0, 0.0d0)
+            U(2,1) = (0.0d0, 0.0d0)
+            U(2,2) = (1.0d0, 0.0d0)
+        else
+            ! Construct unitary propagator U
+            U(1,1) = dcos(beta/2.0d0) - (0.0d0,1.0d0) * (2.0d0 * pi * det) / weff * dsin(beta/2.0d0)
+            U(1,2) = -(0.0d0,1.0d0) * w1x / weff * dsin(beta/2.0d0) - (1.0d0,0.0d0) * w1y / weff * dsin(beta/2.0d0)
+            U(2,1) = -(0.0d0,1.0d0) * w1x / weff * dsin(beta/2.0d0) + (1.0d0,0.0d0) * w1y / weff * dsin(beta/2.0d0)
+            U(2,2) = dcos(beta/2.0d0) + (0.0d0,1.0d0) * (2.0d0 * pi * det) / weff * dsin(beta/2.0d0)
+        end if
 
     end function 
 
